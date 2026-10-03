@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sathi Care</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Poppins", sans-serif; }
+
+    body {
+      background: linear-gradient(135deg, #06382c, #12805f, #e74c3c, #7b1e12);
+      background-size: 300% 300%;
+      animation: flow 14s ease infinite;
+      color: #10261f;
+      min-height: 100vh;
+    }
+
+    @keyframes flow {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    button, input { font: inherit; }
+    button { border: none; cursor: pointer; border-radius: 30px; transition: 0.3s; }
+    button:hover { transform: translateY(-2px); }
+
+    #signin, #app {
+      width: min(100%, 430px);
+      min-height: 100vh;
+      margin: auto;
+      background: white;
+    }
+
+    #signin { padding: 70px 25px; text-align: center; }
+    #app { display: none; padding-bottom: 85px; }
+
+    .logo { width: 75px; height: 75px; margin: auto; }
+    svg rect { fill: #12805f; }
+    svg path { fill: none; stroke: white; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; }
+
+    #signin h1 { margin-top: 15px; font-size: 30px; }
+    #signin p { color: #666; margin: 5px 0 30px; }
+    #signin input { width: 100%; padding: 14px; margin: 6px 0; border: 1px solid #ccc; border-radius: 10px; }
+    #signin small { display: block; margin-top: 15px; color: #777; }
+
+    .main-btn {
+      width: 100%;
+      padding: 14px;
+      margin-top: 12px;
+      color: white;
+      background: linear-gradient(135deg, #000, #12805f);
+      font-weight: 600;
+    }
+    .main-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    header {
+      height: 65px;
+      padding: 10px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(135deg, #000, #06382c, #12805f);
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+    header .brand { display: flex; align-items: center; gap: 9px; }
+    header svg { width: 42px; height: 42px; }
+    header > button { width: 40px; height: 40px; border-radius: 50%; background: white; color: #06382c; font-size: 22px; }
+
+    .page { display: none; padding: 25px 18px; }
+    .page.show { display: block; }
+    .page > p { color: #666; margin-top: 5px; }
+
+    .hero { padding: 20px 5px; text-align: center; }
+    .hero h1 { font-size: 28px; margin: 5px 0 10px; }
+
+    .score {
+      width: 150px;
+      height: 150px;
+      margin: 15px auto;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #000, #06382c, #12805f);
+      color: white;
+      box-shadow: 0 10px 25px #06382c30;
+    }
+    .score strong { font-size: 38px; }
+    .score span { font-size: 12px; }
+
+    h2 { font-size: 19px; margin: 18px 0 12px; }
+
+    .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .metrics button {
+      padding: 15px;
+      text-align: left;
+      background: #f5faf7;
+      border: 1px solid #d8e9df;
+    }
+    .metrics b { display: block; font-size: 24px; margin-top: 6px; }
+    .metrics small { color: #666; }
+
+    .box {
+      padding: 15px;
+      margin: 10px 0;
+      border: 1px solid #d8e9df;
+      border-radius: 12px;
+      background: #f8fbf9;
+    }
+    .warn { color: #c0392b; font-weight: 500; }
+
+    .switch { display: flex; gap: 8px; margin: 12px 0; }
+    .switch button { padding: 9px 18px; background: #e5f2eb; color: #06382c; }
+    .switch button.active { background: #12805f; color: white; }
+
+    .chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 240px;
+      padding: 10px 0;
+      border-bottom: 1px solid #ccc;
+    }
+    .col { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
+    .col .bar { width: 100%; background: linear-gradient(#12805f, #000); border-radius: 5px 5px 0 0; }
+    .col .value { font-size: 10px; font-weight: 600; margin-bottom: 3px; }
+    .labels { display: flex; gap: 4px; margin-top: 5px; }
+    .labels small { flex: 1; text-align: center; font-size: 10px; color: #666; }
+    .summary { margin-top: 15px; }
+
+    .sos {
+      width: 220px;
+      height: 220px;
+      display: block;
+      margin: 30px auto;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #000, #12805f);
+      color: white;
+      font-size: 48px;
+      font-weight: 700;
+      box-shadow: 0 12px 30px #0004;
+    }
+    .sos:hover, .nav-sos:hover {
+      background: linear-gradient(135deg, #7b1e12, #e74c3c) !important;
+      transform: scale(1.06);
+      box-shadow: 0 0 40px #e74c3c99;
+    }
+    .main-btn.red { background: linear-gradient(135deg, #7b1e12, #e74c3c); }
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: #000a;
+      z-index: 40;
+    }
+    .modal.open { display: flex; }
+    .modal-box { width: min(92%, 380px); max-height: 85vh; overflow: auto; padding: 20px; background: white; border-radius: 24px; }
+    .modal-box .close { float: right; background: none; font-size: 24px; }
+    .modal-box h2 { margin-top: 0; }
+    .modal-box h3 { font-size: 14px; color: #666; margin: 16px 0 0; }
+    .appt { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .appt button { padding: 8px 14px; background: #fdf0ee; color: #c0392b; font-size: 13px; }
+    .form input, .form select { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ccc; border-radius: 30px; }
+    .water-glasses { font-size: 24px; letter-spacing: 3px; margin: 8px 0; }
+    .tip { background: #fdf0ee; border-color: #f3c6bf; }
+
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(100%, 430px);
+      height: 70px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background: white;
+      border-top: 1px solid #ddd;
+      z-index: 10;
+    }
+    nav button { background: none; color: #06382c; font-size: 20px; }
+    nav small { display: block; font-size: 10px; }
+    .nav-sos { width: 52px; height: 52px; border-radius: 50%; background: #06382c !important; color: white !important; font-size: 14px !important; }
+
+    #sathi-float {
+      position: fixed;
+      right: 20px;
+      bottom: 90px;
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #000, #12805f);
+      color: white;
+      font-size: 23px;
+      box-shadow: 0 8px 25px #0003;
+      z-index: 20;
+    }
+
+    #ai-panel {
+      position: fixed;
+      right: 15px;
+      bottom: 155px;
+      width: min(90%, 350px);
+      padding: 20px;
+      background: white;
+      border: 1px solid #d8e9df;
+      border-radius: 16px;
+      box-shadow: 0 15px 40px #0003;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.3s;
+      z-index: 19;
+    }
+    #ai-panel.open { opacity: 1; pointer-events: auto; }
+    #ai-panel .close { float: right; background: none; font-size: 22px; }
+    #ai-input { width: 100%; padding: 12px; margin-top: 12px; border: 1px solid #ccc; border-radius: 9px; }
+    #ai-answer { margin-top: 10px; color: #06382c; }
+
+    #message {
+      position: fixed;
+      left: 50%;
+      bottom: 85px;
+      transform: translateX(-50%);
+      padding: 12px 18px;
+      border-radius: 8px;
+      background: #06382c;
+      color: white;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.3s;
+      z-index: 30;
+    }
+    #message.show { opacity: 1; }
+  </style>
+</head>
+
+<body>
+
+  <div id="signin">
+    <div class="logo">
+      <svg viewBox="0 0 100 100">
+        <rect x="8" y="8" width="84" height="84" rx="22"/>
+        <path d="M25 51h13l6-15 9 29 7-14h15"/>
+      </svg>
+    </div>
+    <h1>Sathi Care</h1>
+    <p>Your simple healthcare companion</p>
+    <input id="user-name" type="text" placeholder="Enter your name">
+    <input type="tel" placeholder="Phone number">
+    <button class="main-btn" onclick="signIn()">Sign In</button>
+    <small>Demo sign in — no real account required</small>
+  </div>
+
+  <div id="app">
+    <header>
+      <div class="brand">
+        <svg viewBox="0 0 100 100">
+          <rect x="8" y="8" width="84" height="84" rx="22"/>
+          <path d="M25 51h13l6-15 9 29 7-14h15"/>
+        </svg>
+        <b>Sathi Care</b>
+      </div>
+      <button onclick="showPage('home')">⌂</button>
+    </header>
+
+    <main id="home" class="page show">
+      <section class="hero">
+        <p id="greeting"></p>
+        <h1>Hi, <span id="display-name">David</span></h1>
+        <div class="score">
+          <strong id="health-score">86</strong>
+          <span>Health Score</span>
+        </div>
+        <p>No unusual readings detected</p>
+      </section>
+
+      <h2>Today's Health</h2>
+      <div class="metrics">
+        <button onclick="showReport('heart')">❤️<b id="heart-value"></b><small>Heart rate</small></button>
+        <button onclick="showReport('bp')">🩸<b id="bp-value"></b><small>Blood pressure</small></button>
+        <button onclick="showReport('spo2')">🫁<b id="spo2-value"></b><small>SpO2</small></button>
+        <button onclick="showReport('sleep')">😴<b id="sleep-value"></b><small>Sleep</small></button>
+        <button onclick="showReport('stress')">😌<b id="stress-value"></b><small>Stress</small></button>
+        <button onclick="showReport('steps')">👟<b id="steps-value"></b><small>Steps</small></button>
+      </div>
+
+      <h2>Next Appointment</h2>
+      <div id="next-appt" class="box"></div>
+
+      <h2>Water Today</h2>
+      <div class="box">
+        <div id="water-glasses" class="water-glasses"></div>
+        <span id="water-text"></span>
+        <button class="main-btn" onclick="addWater()">+ Drink a Glass</button>
+      </div>
+
+      <h2>Tip of the Day</h2>
+      <div id="tip" class="box tip"></div>
+    </main>
+
+    <main id="test" class="page">
+      <h1>Health Test</h1>
+      <p>Check your current health readings.</p>
+      <button class="main-btn" onclick="runTest()">Run Test</button>
+      <div id="test-result" class="box">Test results will appear here.</div>
+      <button id="auto-btn" class="main-btn" onclick="toggleAuto()">Start Auto Monitor</button>
+    </main>
+
+    <main id="report" class="page">
+      <h1 id="report-title">Health Report</h1>
+      <div class="switch">
+        <button id="week-btn" onclick="showReport(currentMetric, 'week')">Week</button>
+        <button id="month-btn" onclick="showReport(currentMetric, 'month')">Month</button>
+      </div>
+      <div id="chart" class="chart"></div>
+      <div id="labels" class="labels"></div>
+      <div id="summary" class="box summary"></div>
+    </main>
+
+    <main id="care" class="page">
+      <h1>Care</h1>
+      <h2>Upcoming Appointments</h2>
+      <div id="appt-list"></div>
+      <div class="box form">
+        <b>Book an appointment</b>
+        <select id="appt-doctor"></select>
+        <input id="appt-date" type="date">
+        <input id="appt-time" type="time" value="10:00">
+        <button class="main-btn" onclick="addAppointment()">Book Appointment</button>
+      </div>
+
+      <h2>Medicines</h2>
+      <div id="medicine-list"></div>
+      <h2>Doctors</h2>
+      <div id="doctor-list"></div>
+    </main>
+
+    <main id="family" class="page">
+      <h1>Family</h1>
+      <div id="family-list"></div>
+      <button class="main-btn" onclick="addFamily()">Add Family Member</button>
+    </main>
+
+    <main id="ambulance" class="page">
+      <h1>Emergency</h1>
+      <p>Get help quickly in an emergency.</p>
+      <button class="sos" onclick="pressSOS()">SOS</button>
+      <button class="main-btn red" onclick="callNumber('108')">🚑 Call Ambulance (108)</button>
+      <button class="main-btn" onclick="findMe()">Find My Location</button>
+      <div id="hospital-list"></div>
+    </main>
+
+    <main id="cab" class="page">
+      <h1>Cab</h1>
+      <p>Book a cab for hospital visits.</p>
+      <button class="main-btn" onclick="bookCab()">Book Cab</button>
+      <div id="cab-result" class="box">No cab booked yet.</div>
+    </main>
+
+    <nav>
+      <button onclick="showPage('family')">👨‍👩‍👧<small>Family</small></button>
+      <button onclick="showPage('test')">🩺<small>Test</small></button>
+      <button class="nav-sos" onclick="pressSOS()">SOS</button>
+      <button onclick="showPage('cab')">🚕<small>Cab</small></button>
+      <button onclick="showPage('care')">💚<small>Care</small></button>
+    </nav>
+  </div>
+
+  <button id="sathi-float" onclick="toggleAI()">✦</button>
+
+  <section id="ai-panel">
+    <button class="close" onclick="toggleAI()">×</button>
+    <h2>Sathi AI</h2>
+    <p>How can I help you?</p>
+    <input id="ai-input" placeholder="Ask something...">
+    <button class="main-btn" onclick="answer()">Ask Sathi</button>
+    <p id="ai-answer"></p>
+  </section>
+
+  <section id="sos-modal" class="modal">
+    <div class="modal-box">
+      <button class="close" onclick="closeSOS()">×</button>
+      <h2>🚨 SOS Help</h2>
+      <p>Who do you want to contact?</p>
+      <div id="sos-options"></div>
+    </div>
+  </section>
+
+  <div id="message"></div>
+
+  <script>
+    var currentMetric = "heart";
+    var autoTimer = null;
+
+    var metrics = {
+      heart:  { name: "Heart rate",     base: 74,   spread: 8,    unit: " bpm",  decimals: 0 },
+      bp:     { name: "Blood pressure", base: 120,  spread: 8,    unit: "/80",   decimals: 0 },
+      spo2:   { name: "SpO2",           base: 97,   spread: 2,    unit: "%",     decimals: 0 },
+      sleep:  { name: "Sleep",          base: 7.2,  spread: 1.2,  unit: " hrs",  decimals: 1 },
+      stress: { name: "Stress",         base: 3,    spread: 2,    unit: "/10",   decimals: 0 },
+      steps:  { name: "Steps",          base: 6500, spread: 2500, unit: "",      decimals: 0 }
+    };
+
+    var family = [
+      { name: "Rohan (Son)", phone: "+911234567890" },
+      { name: "Priya (Daughter)", phone: "+910987654321" }
+    ];
+
+    var medicines = [
+      { name: "Metformin 500mg", left: 24 },
+      { name: "Amlodipine 5mg", left: 4 },
+      { name: "Vitamin D", left: 0 }
+    ];
+
+    var doctors = [
+      { name: "Dr. Anil Verma", job: "General Physician", phone: "+911112223334" },
+      { name: "Dr. Neha Kapoor", job: "Heart Doctor", phone: "+915556667778" }
+    ];
+
+    var appointments = [
+      { doctor: "Dr. Anil Verma", date: daysFromNow(2), time: "10:30" },
+      { doctor: "Dr. Neha Kapoor", date: daysFromNow(9), time: "16:00" }
+    ];
+
+    var water = 0;
+
+    var tips = [
+      "Walk for 20 minutes after meals to help control blood sugar.",
+      "Drink a glass of water when you wake up.",
+      "Take your medicines at the same time every day.",
+      "Sleep 7 to 8 hours to keep your heart healthy.",
+      "Eat less salt to help keep blood pressure normal.",
+      "Stretch gently for 5 minutes every morning."
+    ];
+
+    function daysFromNow(n) {
+      var d = new Date();
+      d.setDate(d.getDate() + n);
+      return d.toISOString().slice(0, 10);
+    }
+
+    var days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+    function $(id) {
+      return document.getElementById(id);
+    }
+
+    function safe(text) {
+      var div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function randomValue(key) {
+      var m = metrics[key];
+      var value = m.base + (Math.random() * 2 - 1) * m.spread;
+      return Number(value.toFixed(m.decimals));
+    }
+
+    function format(key, value) {
+      return value.toLocaleString() + metrics[key].unit;
+    }
+
+    function signIn() {
+      $("display-name").textContent = $("user-name").value.trim() || "David";
+      $("signin").style.display = "none";
+      $("app").style.display = "block";
+
+      var hour = new Date().getHours();
+      $("greeting").textContent =
+        hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
+      updateHome();
+      drawMedicines();
+      drawDoctors();
+      drawFamily();
+      drawHospitals();
+      drawWater();
+      drawAppointments();
+      $("appt-date").value = daysFromNow(1);
+      $("tip").textContent = tips[new Date().getDate() % tips.length];
+    }
+
+    function showPage(id) {
+      document.querySelectorAll(".page").forEach(function (page) {
+        page.classList.remove("show");
+      });
+      $(id).classList.add("show");
+      window.scrollTo(0, 0);
+    }
+
+    function updateHome() {
+      ["heart", "bp", "spo2", "sleep", "stress", "steps"].forEach(function (key) {
+        $(key + "-value").textContent = format(key, randomValue(key));
+      });
+      $("health-score").textContent = Math.floor(80 + Math.random() * 15);
+    }
+
+    function runTest() {
+      var temp = (98 + Math.random()).toFixed(1);
+
+      $("test-result").innerHTML =
+        "<b>Heart rate:</b> " + format("heart", randomValue("heart")) + "<br>" +
+        "<b>Blood pressure:</b> " + format("bp", randomValue("bp")) + " mmHg<br>" +
+        "<b>SpO2:</b> " + format("spo2", randomValue("spo2")) + "<br>" +
+        "<b>Temperature:</b> " + temp + " °F";
+
+      toast("Health test completed");
+    }
+
+    function toggleAuto() {
+      if (autoTimer) {
+        clearInterval(autoTimer);
+        autoTimer = null;
+        $("auto-btn").textContent = "Start Auto Monitor";
+        toast("Auto monitoring stopped");
+      } else {
+        autoTimer = setInterval(updateHome, 20000);
+        $("auto-btn").textContent = "Stop Auto Monitor";
+        toast("Auto monitoring started");
+      }
+    }
+
+    function showReport(key, range) {
+      range = range || "week";
+      currentMetric = key;
+      showPage("report");
+
+      $("report-title").textContent = metrics[key].name + " Report";
+      $("week-btn").className = range === "week" ? "active" : "";
+      $("month-btn").className = range === "month" ? "active" : "";
+
+      var count = range === "month" ? 14 : 7;
+      var values = [];
+      for (var i = 0; i < count; i++) {
+        values.push(randomValue(key));
+      }
+
+      var biggest = Math.max.apply(null, values);
+      var total = values.reduce(function (a, b) { return a + b; }, 0);
+      var average = Number((total / count).toFixed(metrics[key].decimals));
+
+      var chart = "";
+      var labels = "";
+
+      values.forEach(function (v, i) {
+        var height = Math.round((v / biggest) * 170);
+        var label = range === "month" ? (i + 1) : days[i];
+
+        chart +=
+          "<div class='col'>" +
+          "<span class='value'>" + v.toLocaleString() + "</span>" +
+          "<div class='bar' style='height:" + height + "px'></div>" +
+          "</div>";
+
+        labels += "<small>" + label + "</small>";
+      });
+
+      $("chart").innerHTML = chart;
+      $("labels").innerHTML = labels;
+
+      $("summary").innerHTML =
+        "<b>Average:</b> " + format(key, average) + "<br>" +
+        "<b>Highest:</b> " + format(key, biggest) + "<br>" +
+        "<b>Lowest:</b> " + format(key, Math.min.apply(null, values));
+    }
+
+    function drawWater() {
+      var glasses = "";
+      for (var i = 0; i < 8; i++) {
+        glasses += i < water ? "💧" : "⚪";
+      }
+      $("water-glasses").textContent = glasses;
+      $("water-text").textContent = water + " of 8 glasses";
+    }
+
+    function addWater() {
+      if (water >= 8) {
+        toast("Goal reached! Great job 🎉");
+        return;
+      }
+      water++;
+      drawWater();
+      toast(water === 8 ? "Daily water goal complete 🎉" : "Glass added");
+    }
+
+    function drawMedicines() {
+      $("medicine-list").innerHTML = medicines.map(function (m, i) {
+        var status = m.left === 0 ? "<span class='warn'>Out of stock</span>" :
+                     m.left <= 5 ? "<span class='warn'>" + m.left + " tablets left — refill soon</span>" :
+                     m.left + " tablets left";
+
+        return "<div class='box'>" +
+          "<b>" + m.name + "</b><br>" + status +
+          "<button class='main-btn' " + (m.left === 0 ? "disabled" : "") +
+          " onclick='takeTablet(" + i + ")'>Take Tablet</button></div>";
+      }).join("");
+    }
+
+    function takeTablet(i) {
+      medicines[i].left--;
+      drawMedicines();
+      toast("Medicine marked as taken");
+    }
+
+    function drawDoctors() {
+      $("appt-doctor").innerHTML = doctors.map(function (d) {
+        return "<option>" + d.name + "</option>";
+      }).join("");
+
+      $("doctor-list").innerHTML = doctors.map(function (d) {
+        return "<div class='box'><b>" + d.name + "</b><br>" + d.job +
+          "<button class='main-btn' onclick='callNumber(\"" + d.phone + "\")'>Call Doctor</button></div>";
+      }).join("");
+    }
+
+    function drawFamily() {
+      $("family-list").innerHTML = family.map(function (f) {
+        return "<div class='box'><b>" + safe(f.name) + "</b><br>" + safe(f.phone) +
+          "<button class='main-btn' onclick='callNumber(\"" + f.phone + "\")'>Call</button></div>";
+      }).join("");
+    }
+
+    function addFamily() {
+      var name = prompt("Family member name");
+      if (!name || !name.trim()) return;
+
+      var phone = prompt("Phone number (with country code)");
+      if (!phone || !phone.trim()) return;
+
+      family.push({ name: name.trim(), phone: phone.trim().replace(/[^0-9+]/g, "") });
+      drawFamily();
+      toast("Family member added");
+    }
+
+    function callNumber(number) {
+      window.location.href = "tel:" + number;
+    }
+
+    function pressSOS() {
+      var html = "<button class='main-btn red' onclick='callNumber(\"108\")'>🚑 Call Ambulance (108)</button>" +
+        "<button class='main-btn' onclick='openLink(\"https://www.google.com/maps/search/hospitals+near+me\")'>🏥 Find Nearby Help</button>";
+
+      html += "<h3>Call family</h3>";
+      family.forEach(function (f) {
+        html += "<button class='main-btn' onclick='callNumber(\"" + f.phone + "\")'>📞 " + safe(f.name) + "</button>";
+      });
+
+      html += "<h3>Call doctor</h3>";
+      doctors.forEach(function (d) {
+        html += "<button class='main-btn' onclick='callNumber(\"" + d.phone + "\")'>🩺 " + d.name + "</button>";
+      });
+
+      html += "<h3>Video call family</h3>";
+      family.forEach(function (f) {
+        html += "<button class='main-btn' onclick='openLink(\"https://wa.me/" + f.phone.replace(/[^0-9]/g, "") + "\")'>🎥 " + safe(f.name) + "</button>";
+      });
+
+      $("sos-options").innerHTML = html;
+      $("sos-modal").classList.add("open");
+      toast("SOS alert sent to your emergency contacts");
+    }
+
+    function closeSOS() {
+      $("sos-modal").classList.remove("open");
+    }
+
+    function openLink(url) {
+      window.open(url, "_blank");
+    }
+
+    function niceDate(date, time) {
+      var d = new Date(date + "T" + time);
+      return d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" }) +
+        " at " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    }
+
+    function drawAppointments() {
+      appointments.sort(function (a, b) {
+        return (a.date + a.time).localeCompare(b.date + b.time);
+      });
+
+      $("appt-list").innerHTML = appointments.length === 0
+        ? "<div class='box'>No upcoming appointments.</div>"
+        : appointments.map(function (a, i) {
+            return "<div class='box appt'><div><b>" + a.doctor + "</b><br>" + niceDate(a.date, a.time) +
+              "</div><button onclick='cancelAppointment(" + i + ")'>Cancel</button></div>";
+          }).join("");
+
+      $("next-appt").innerHTML = appointments.length === 0
+        ? "No upcoming appointments."
+        : "<b>" + appointments[0].doctor + "</b><br>" + niceDate(appointments[0].date, appointments[0].time);
+    }
+
+    function addAppointment() {
+      var date = $("appt-date").value;
+      var time = $("appt-time").value;
+
+      if (!date || !time) {
+        toast("Please choose a date and time");
+        return;
+      }
+
+      appointments.push({ doctor: $("appt-doctor").value, date: date, time: time });
+      drawAppointments();
+      toast("Appointment booked");
+    }
+
+    function cancelAppointment(i) {
+      appointments.splice(i, 1);
+      drawAppointments();
+      toast("Appointment cancelled");
+    }
+
+    function findMe() {
+      if (!navigator.geolocation) {
+        toast("Location is not available");
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        function () { toast("Location found"); },
+        function () { toast("Could not get your location"); }
+      );
+    }
+
+    function drawHospitals() {
+      $("hospital-list").innerHTML =
+        "<div class='box'><b>Lotus General Hospital</b><br>Nearby hospital</div>" +
+        "<div class='box'><b>City Heart Clinic</b><br>Heart care</div>" +
+        "<div class='box'><b>Care Plus Hospital</b><br>General care</div>";
+    }
+
+    function bookCab() {
+      $("cab-result").innerHTML =
+        "<b>Cab booked</b><br>Driver: Demo Driver<br>OTP: 2481";
+      toast("Cab booking confirmed");
+    }
+
+    function toggleAI() {
+      $("ai-panel").classList.toggle("open");
+    }
+
+    function answer() {
+      var input = $("ai-input").value.toLowerCase();
+      var text = "I can help you with your dashboard, medicines and reports.";
+
+      if (input.includes("medicine")) {
+        text = "You can check your medicines in the Care section.";
+      } else if (input.includes("family")) {
+        text = "Your family members are available in the Family section.";
+      } else if (input.includes("report")) {
+        text = "Tap any health metric to view its report.";
+      }
+
+      $("ai-answer").textContent = text;
+    }
+
+    function toast(text) {
+      var message = $("message");
+      message.textContent = text;
+      message.classList.add("show");
+      setTimeout(function () {
+        message.classList.remove("show");
+      }, 2000);
+    }
+  </script>
+
+</body>
+</html>
